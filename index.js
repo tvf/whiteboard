@@ -9,7 +9,8 @@ const WebSocket = require('ws');
 const app = express();
 const clientmap = new Map();
 
-const drawlist = [];
+// const drawlist = [];
+// const artist_locations = new Map();
 
 //
 // Serve static files from the 'public' folder.
@@ -34,13 +35,9 @@ wss.on('connection', function(ws, request) {
   ws.on('message', function(message) {
     console.log(`Received message ${message} from user ${userId}`);
 
-    let artist_location = {
-      type: "artist location",
-      name: "Thomas",
-      position: [20, 40],
-    };
-
-    ws.send(JSON.stringify(artist_location));
+    clientmap.forEach((value) => {
+      value.send(message);
+    });
   });
 
   ws.on('close', function() {

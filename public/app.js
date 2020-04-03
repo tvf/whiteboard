@@ -4,6 +4,7 @@
   // const wsSendButton = document.querySelector('#wsSendButton');
   const whiteboard = document.querySelector('#whiteboard');
   const whiteboard_ctx = whiteboard.getContext('2d');
+  const name_input = document.querySelector('#username');
 
   const artist_locations = new Map();
   let dirty = true;
@@ -12,7 +13,8 @@
   let mouse_state = {
     button_down: false,
     middle_button_down: false,
-    last_position: null
+    last_position: null,
+    dirty: false
   };
 
   function showMessage(message) {
@@ -44,6 +46,7 @@
     };
 
     ws.onmessage = function(message) {
+      showMessage(message.data);
       let content = JSON.parse(message.data);
 
       if (content.type === 'artist location') {
@@ -75,6 +78,7 @@
   whiteboard.mouseout = function (event) {
     mouse_state.button_down = false;
     mouse_state.middle_button_down = false;
+    mouse_state.last_position = null;
   };
 
   whiteboard.onmousedown = function (event) {
@@ -98,9 +102,14 @@
     if (event.button == 1) {
       mouse_state.middle_button_down = false;
     }
-};
+  };
 
-  whiteboard.onmousemove = function() {
+  whiteboard.onmousemove = function(event) {
+    const rect = whiteboard.getBoundingClientRect()
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    mouse_state.last_position = [x, y];
+    mouse_state.dirty = true;
     // update artist location
   };
 
@@ -140,6 +149,18 @@
       // TODO ship queued draws to server
     }
 
+    if (ws && mouse_state.dirty) {  // zomg every frame? this is bad
+
+      let artist_location = {
+        type: "artist location",
+        name: username.value,  // TODO your name here
+        position: mouse_state.last_position,
+      };
+
+      ws.send(JSON.stringify(artist_location));
+
+      mouse_state.dirty = false;
+    }
     // TODO ship own artist location to the server
     
     requestAnimationFrame(render);
