@@ -3,9 +3,8 @@
   "name": "whiteboard",
   "version": "0.0.0",
   "dependencies": {
-    "express": "^4.16.4",
-    "express-session": "^1.16.1",
-    "uuid": "^3.3.2",
+    "express": "^4.17.1",
+    "uuid": "^3.4.0",
     "ws": "^7.2.3"
   }
 }
