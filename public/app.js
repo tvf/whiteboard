@@ -126,12 +126,11 @@ function notify_location() {
     };
 
     ws.send(JSON.stringify(artist_location));
-
-    mouse_state.dirty = false;
   }
 }
 
 function render(now) {
+
   if (dirty) {
     clear_canvas();
     draw_penstrokes();
@@ -142,10 +141,12 @@ function render(now) {
 
   if (queued_draws) {
     notify_draws();
+    queued_draws = false;
   }
 
   if (mouse_state.dirty) {
     notify_location();
+    mouse_state.dirty = false; // TODO this should be about location change
   }
 
   requestAnimationFrame(render);
