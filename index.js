@@ -27,7 +27,6 @@ server.on('upgrade', function(request, socket, head) {
 });
 
 wss.on('connection', function(ws, request) {
-
   const userId = uuid.v4();
 
   clientmap.set(userId, ws);
@@ -40,7 +39,7 @@ wss.on('connection', function(ws, request) {
 
     let broadcast = JSON.stringify(content);
 
-    clientmap.forEach((value) => {
+    clientmap.forEach(value => {
       value.send(broadcast);
     });
   });
@@ -49,13 +48,13 @@ wss.on('connection', function(ws, request) {
     clientmap.delete(userId);
 
     let artist_location = {
-      type: "artist location",
-      name: userId
+      type: 'artist location',
+      name: userId,
     };
 
     let broadcast = JSON.stringify(artist_location);
 
-    clientmap.forEach((value) => {
+    clientmap.forEach(value => {
       value.send(broadcast);
     });
   });
