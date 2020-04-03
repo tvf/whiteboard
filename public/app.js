@@ -4,7 +4,7 @@
   // const wsSendButton = document.querySelector('#wsSendButton');
   const whiteboard = document.querySelector('#whiteboard');
   const whiteboard_ctx = whiteboard.getContext('2d');
-  const name_input = document.querySelector('#username');
+  // const name_input = document.querySelector('#username');
 
   const artist_locations = new Map();
   let dirty = true;
@@ -151,7 +151,6 @@
     if (ws && ws.readyState === WebSocket.OPEN && mouse_state.dirty) {
       let artist_location = {
         type: "artist location",
-        name: "",  // TODO your name here
         position: mouse_state.last_position,
       };
 
