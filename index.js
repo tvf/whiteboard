@@ -51,7 +51,19 @@ wss.on('connection', function(ws, request) {
   });
 
   ws.on('close', function() {
+
     clientmap.delete(userId);
+
+    let artist_location = {
+      type: "artist location",
+      name: userId
+    };
+
+    let broadcast = JSON.stringify(artist_location);
+
+    clientmap.forEach((value) => {
+      value.send(broadcast);
+    });
   });
 });
 
