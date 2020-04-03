@@ -148,8 +148,7 @@
       // TODO ship queued draws to server
     }
 
-    if (ws && mouse_state.dirty) {  // zomg every frame? this is bad
-
+    if (ws && ws.readyState === WebSocket.OPEN && mouse_state.dirty) {
       let artist_location = {
         type: "artist location",
         name: "",  // TODO your name here
