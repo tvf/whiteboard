@@ -1,12 +1,19 @@
 (function() {
   const messages = document.querySelector('#messages');
-  const wsButton = document.querySelector('#wsButton');
-  const wsSendButton = document.querySelector('#wsSendButton');
+  // const wsButton = document.querySelector('#wsButton');
+  // const wsSendButton = document.querySelector('#wsSendButton');
   const whiteboard = document.querySelector('#whiteboard');
   const whiteboard_ctx = whiteboard.getContext('2d');
 
   const artist_locations = new Map();
   let dirty = true;
+  let queued_draws = false;
+
+  let mouse_state = {
+    button_down: false,
+    middle_button_down: false,
+    last_position: null
+  };
 
   function showMessage(message) {
     messages.textContent += `\n${message}`;
@@ -15,7 +22,7 @@
 
   let ws;
 
-  wsButton.onclick = function() {
+  function open_websocket() {
     if (ws) {
       ws.onerror = ws.onopen = ws.onclose = null;
       ws.close();
@@ -51,40 +58,94 @@
     };
   };
 
-  wsSendButton.onclick = function() {
-    if (!ws) {
-      showMessage('No WebSocket connection');
-      return;
+  // wsSendButton.onclick = function() {
+  //   if (!ws) {
+  //     showMessage('No WebSocket connection');
+  //     return;
+  //   }
+  //   let penstrokes = [{
+  //     start: [0, 0, 20],
+  //     end: [1000, 0, 30],
+  //     colour: [127, 127, 127]
+  //   }];
+  //   ws.send(JSON.stringify(penstrokes));
+  //   showMessage('Sent "Hello World!"');
+  // };
+
+  whiteboard.mouseout = function (event) {
+    mouse_state.button_down = false;
+    mouse_state.middle_button_down = false;
+  };
+
+  whiteboard.onmousedown = function (event) {
+
+    if (event.button == 0) {
+      mouse_state.button_down = true;
     }
 
-    let penstrokes = [{
-      start: [0, 0, 20],
-      end: [1000, 0, 30],
-      colour: [127, 127, 127]
-    }];
-
-    ws.send(JSON.stringify(penstrokes));
-
-    showMessage('Sent "Hello World!"');
+    if (event.button == 1) {
+      mouse_state.middle_button_down = true;
+    }
+    // mouse_state.last_position = [event.clientX, event.clientY];
   };
+
+  whiteboard.onmouseup = function (event) {
+
+    if (event.button == 0) {
+      mouse_state.button_down = false;
+    }
+
+    if (event.button == 1) {
+      mouse_state.middle_button_down = false;
+    }
+};
+
+  whiteboard.onmousemove = function() {
+    // update artist location
+  };
+
+  // once per frame, render the current state of the app,
+  // and send everything drawn since last frame to the server
+
+  function clear_canvas() {
+    whiteboard_ctx.fillStyle = 'rgb(127, 127, 127)';
+    whiteboard_ctx.fillRect(0,0,640,480);
+  }
+
+  function draw_penstrokes() {
+    // TODO
+  }
+
+  function draw_artist_locations() {
+    whiteboard_ctx.fillStyle = 'rgb(63, 63, 63)';
+    
+    artist_locations.forEach((position, name) => {
+      whiteboard_ctx.fillRect(position[0], position[1], 2, 2);
+      whiteboard_ctx.font = '10px sans';
+      whiteboard_ctx.fillText(name, position[0] + 2, position[1] - 1);
+    });
+  }
 
   function render(now) {
 
     if (dirty) {
-
-      whiteboard_ctx.fillStyle = 'rgb(127, 127, 127)';
-      whiteboard_ctx.fillRect(0,0,640,480);
-
-      whiteboard_ctx.fillStyle = 'rgb(255, 0, 0)';
-      artist_locations.forEach((position) => {
-        whiteboard_ctx.fillRect(position[0], position[1], 1, 1);
-      }); // TODO text?
+      clear_canvas();
+      draw_penstrokes();
+      draw_artist_locations();
 
       dirty = false;
     }
+
+    if (queued_draws) {
+      // TODO ship queued draws to server
+    }
+
+    // TODO ship own artist location to the server
     
     requestAnimationFrame(render);
   }
+
+  open_websocket();
 
   requestAnimationFrame(render);
 })();
