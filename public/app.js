@@ -18,8 +18,8 @@
   };
 
   function showMessage(message) {
-    messages.textContent += `\n${message}`;
-    messages.scrollTop = messages.scrollHeight;
+    // messages.textContent += `\n${message}`;
+    // messages.scrollTop = messages.scrollHeight;
   }
 
   let ws;
@@ -72,7 +72,6 @@
   //     colour: [127, 127, 127]
   //   }];
   //   ws.send(JSON.stringify(penstrokes));
-  //   showMessage('Sent "Hello World!"');
   // };
 
   whiteboard.mouseout = function (event) {
@@ -153,7 +152,7 @@
 
       let artist_location = {
         type: "artist location",
-        name: username.value,  // TODO your name here
+        name: "",  // TODO your name here
         position: mouse_state.last_position,
       };
 

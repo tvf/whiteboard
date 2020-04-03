@@ -35,8 +35,13 @@ wss.on('connection', function(ws, request) {
   ws.on('message', function(message) {
     console.log(`Received message ${message} from user ${userId}`);
 
+    let content = JSON.parse(message);
+    content.name = userId;
+
+    let broadcast = JSON.stringify(content);
+    
     clientmap.forEach((value) => {
-      value.send(message);
+      value.send(broadcast);
     });
   });
 
