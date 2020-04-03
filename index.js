@@ -33,9 +33,6 @@ wss.on('connection', function(ws, request) {
   clientmap.set(userId, ws);
 
   ws.on('message', function(message) {
-
-    // let start = process.hrtime();
-
     console.log(`Received message ${message} from user ${userId}`);
 
     let content = JSON.parse(message);
@@ -46,12 +43,9 @@ wss.on('connection', function(ws, request) {
     clientmap.forEach((value) => {
       value.send(broadcast);
     });
-
-    // console.log(process.hrtime(start));
   });
 
   ws.on('close', function() {
-
     clientmap.delete(userId);
 
     let artist_location = {

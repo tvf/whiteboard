@@ -1,10 +1,7 @@
 (function() {
   const messages = document.querySelector('#messages');
-  // const wsButton = document.querySelector('#wsButton');
-  // const wsSendButton = document.querySelector('#wsSendButton');
   const whiteboard = document.querySelector('#whiteboard');
   const whiteboard_ctx = whiteboard.getContext('2d');
-  // const name_input = document.querySelector('#username');
 
   const artist_locations = new Map();
   let dirty = true;
@@ -18,8 +15,8 @@
   };
 
   function showMessage(message) {
-    // messages.textContent += `\n${message}`;
-    // messages.scrollTop = messages.scrollHeight;
+    messages.textContent += `\n${message}`;
+    messages.scrollTop = messages.scrollHeight;
   }
 
   let ws;
@@ -46,7 +43,7 @@
     };
 
     ws.onmessage = function(message) {
-      showMessage(message.data);
+      // showMessage(message.data);
       let content = JSON.parse(message.data);
 
       if (content.type === 'artist location') {
@@ -60,19 +57,6 @@
       }
     };
   };
-
-  // wsSendButton.onclick = function() {
-  //   if (!ws) {
-  //     showMessage('No WebSocket connection');
-  //     return;
-  //   }
-  //   let penstrokes = [{
-  //     start: [0, 0, 20],
-  //     end: [1000, 0, 30],
-  //     colour: [127, 127, 127]
-  //   }];
-  //   ws.send(JSON.stringify(penstrokes));
-  // };
 
   whiteboard.mouseout = function (event) {
     mouse_state.button_down = false;
@@ -89,7 +73,6 @@
     if (event.button == 1) {
       mouse_state.middle_button_down = true;
     }
-    // mouse_state.last_position = [event.clientX, event.clientY];
   };
 
   whiteboard.onmouseup = function (event) {
@@ -134,6 +117,23 @@
     });
   }
 
+  function notify_draws() {
+    // TODO
+  }
+
+  function notify_location() {
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      let artist_location = {
+        type: "artist location",
+        position: mouse_state.last_position,
+      };
+
+      ws.send(JSON.stringify(artist_location));
+
+      mouse_state.dirty = false;
+    }
+  }
+
   function render(now) {
 
     if (dirty) {
@@ -145,20 +145,12 @@
     }
 
     if (queued_draws) {
-      // TODO ship queued draws to server
+      notify_draws();
     }
 
-    if (ws && ws.readyState === WebSocket.OPEN && mouse_state.dirty) {
-      let artist_location = {
-        type: "artist location",
-        position: mouse_state.last_position,
-      };
-
-      ws.send(JSON.stringify(artist_location));
-
-      mouse_state.dirty = false;
+    if (mouse_state.dirty) {
+      notify_location();
     }
-    // TODO ship own artist location to the server
     
     requestAnimationFrame(render);
   }
